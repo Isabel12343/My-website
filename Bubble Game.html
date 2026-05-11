@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Relax Bubble Game</title>
+  <style>
+    body {
+      background-color: #f4bfd0;
+      font-family: Georgia, serif;
+      text-align: center;
+      color: #6d4c63;
+      padding: 20px;
+    }
+
+    a {
+      color: #6d4c63;
+      text-decoration: none;
+      margin: 10px;
+    }
+
+    h1 {
+      color: #4b3621;
+    }
+
+    #game-area {
+      background: #fff9fb;
+      border: 3px solid #e8b4cc;
+      border-radius: 25px;
+      width: 90%;
+      height: 400px;
+      margin: 30px auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bubble {
+      width: 60px;
+      height: 60px;
+      background: #e8b4cc;
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+      box-shadow: 0 0 15px #fff;
+      animation: float 4s infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+
+    button {
+      background-color: #6d4c63;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 12px 25px;
+      font-family: Georgia, serif;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="pomodoro.html">Pomodoro</a>
+    <a href="relax-game.html">Relax Game</a>
+  </nav>
+
+  <h1>Relax Bubble Game 🫧</h1>
+  <p>Click the bubbles to relax and collect points.</p>
+
+  <h2>Score: <span id="score">0</span></h2>
+
+  <button onclick="makeBubble()">Make a Bubble</button>
+
+  <div id="game-area"></div>
+
+  <script>
+    let score = 0;
+
+    function makeBubble() {
+      let bubble = document.createElement("div");
+      bubble.className = "bubble";
+
+      let gameArea = document.getElementById("game-area");
+
+      let x = Math.random() * (gameArea.clientWidth - 60);
+      let y = Math.random() * (gameArea.clientHeight - 60);
+
+      bubble.style.left = x + "px";
+      bubble.style.top = y + "px";
+
+      bubble.onclick = function() {
+        score++;
+        document.getElementById("score").textContent = score;
+        bubble.remove();
+      };
+
+      gameArea.appendChild(bubble);
+    }
+  </script>
+
+</body>
+</html>

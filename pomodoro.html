@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Isabel's Pomodoro Timer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #f4bfd0;
+      font-family: Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    nav { width: 100%; max-width: 700px; margin-bottom: 30px; display: flex; gap: 16px; justify-content: center; }
+    nav a { color: #6d4c63; text-decoration: none; font-size: 15px; border-bottom: 2px solid transparent; padding-bottom: 2px; }
+    nav a:hover, nav a.active { border-bottom: 2px solid #6d4c63; }
+    h1 { color: #6d4c63; font-size: 2rem; margin-bottom: 6px; text-align: center; }
+    .subtitle { color: #9b6e8a; font-size: 0.95rem; text-align: center; margin-bottom: 32px; font-style: italic; }
+    .card { background: #fff9fb; border-radius: 24px; border: 3px solid #e8b4cc; padding: 36px 44px; max-width: 460px; width: 100%; text-align: center; }
+    .mode-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 28px; }
+    .mode-btn { background: #f4bfd0; border: 2px solid #d89ab4; color: #6d4c63; border-radius: 20px; padding: 7px 18px; font-size: 13px; cursor: pointer; font-family: Georgia, serif; transition: all 0.2s; }
+    .mode-btn.active { background: #6d4c63; color: #fff9fb; border-color: #6d4c63; }
+    .timer-face { position: relative; width: 210px; height: 210px; margin: 0 auto 28px; }
+    .timer-face svg { transform: rotate(-90deg); }
+    .timer-track { fill: none; stroke: #f0d0df; stroke-width: 10; }
+    .timer-progress { fill: none; stroke: #c4728f; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+    .timer-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .timer-time { font-size: 3rem; font-weight: bold; color: #4b3621; letter-spacing: 2px; line-height: 1; }
+    .timer-mode-label { font-size: 12px; color: #9b6e8a; letter-spacing: 1px; text-transform: uppercase; }
+    .controls { display: flex; gap: 14px; justify-content: center; margin-bottom: 24px; }
+    .btn-main { background: #6d4c63; color: #fff9fb; border: none; border-radius: 50px; padding: 13px 40px; font-size: 16px; font-family: Georgia, serif; cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px; }
+    .btn-main:hover { background: #4b3621; }
+    .btn-main:active { transform: scale(0.97); }
+    .btn-secondary { background: transparent; color: #9b6e8a; border: 2px solid #d89ab4; border-radius: 50px; padding: 13px 24px; font-size: 15px; font-family: Georgia, serif; cursor: pointer; transition: all 0.2s; }
+    .btn-secondary:hover { background: #f0d0df; color: #6d4c63; }
+    .session-count { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; }
+    .tomato-pip { font-size: 18px; opacity: 0.3; transition: opacity 0.3s; }
+    .tomato-pip.done { opacity: 1; }
+    .divider { border: none; border-top: 1.5px solid #e8c4d4; margin: 18px 0; }
+    .settings-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; color: #9b6e8a; }
+    .settings-row label { text-align: left; min-width: 100px; }
+    .settings-row input[type="number"] { width: 56px; border: 1.5px solid #d89ab4; border-radius: 10px; padding: 5px 8px; font-size: 13px; color: #4b3621; background: #fff9fb; text-align: center; font-family: Georgia, serif; }
+    .status-msg { font-size: 14px; color: #9b6e8a; font-style: italic; min-height: 20px; margin-top: 4px; }
+    footer { margin-top: 32px; font-size: 12px; color: #c490aa; font-style: italic; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="pomodoro.html" class="active">Pomodoro &#127813;</a>
+  </nav>
+  <h1>study timer &#127813;</h1>
+  <p class="subtitle">romanticize your study sessions, one tomato at a time</p>
+  <div class="card">
+    <div class="mode-tabs">
+      <button class="mode-btn active" onclick="setMode('focus')">Focus</button>
+      <button class="mode-btn" onclick="setMode('short')">Short Break</button>
+      <button class="mode-btn" onclick="setMode('long')">Long Break</button>
+    </div>
+    <div class="timer-face">
+      <svg width="210" height="210" viewBox="0 0 210 210">
+        <circle class="timer-track" cx="105" cy="105" r="90" />
+        <circle class="timer-progress" id="progress-ring" cx="105" cy="105" r="90"
+          stroke-dasharray="565.49" stroke-dashoffset="0" />
+      </svg>
+      <div class="timer-label">
+        <span class="timer-time" id="timer-display">25:00</span>
+        <span class="timer-mode-label" id="mode-label">Focus</span>
+      </div>
+    </div>
+    <div class="session-count">
+      <span class="tomato-pip" id="pip-1">&#127813;</span>
+      <span class="tomato-pip" id="pip-2">&#127813;</span>
+      <span class="tomato-pip" id="pip-3">&#127813;</span>
+      <span class="tomato-pip" id="pip-4">&#127813;</span>
+    </div>
+    <div class="controls">
+      <button class="btn-main" id="start-btn" onclick="toggleTimer()">Start</button>
+      <button class="btn-secondary" onclick="resetTimer()">Reset</button>
+    </div>
+    <p class="status-msg" id="status-msg">ready when you are &#10024;</p>
+    <hr class="divider" />
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="settings-row">
+        <label>Focus (min)</label>
+        <input type="number" id="focus-input" value="25" min="1" max="60" onchange="updateDurations()" />
+      </div>
+      <div class="settings-row">
+        <label>Short break (min)</label>
+        <input type="number" id="short-input" value="5" min="1" max="30" onchange="updateDurations()" />
+      </div>
+      <div class="settings-row">
+        <label>Long break (min)</label>
+        <input type="number" id="long-input" value="15" min="1" max="60" onchange="updateDurations()" />
+      </div>
+    </div>
+  </div>
+  <footer>you&rsquo;ve got this, isa &#128149;</footer>
+  <script>
+    var C = 2 * Math.PI * 90;
+    var modes = {
+      focus: { label: 'Focus', msgs: ['you got this!', 'stay focused, queen', 'in the zone', 'making moves'] },
+      short: { label: 'Short Break', msgs: ['take a breath', 'stretch it out', 'quick snack break?', 'you earned it'] },
+      long:  { label: 'Long Break', msgs: ['big break energy', 'go touch grass', 'proud of you', 'recharge mode'] }
+    };
+    var durations = { focus: 1500, short: 300, long: 900 };
+    var currentMode = 'focus';
+    var timeLeft = 1500;
+    var totalTime = 1500;
+    var running = false;
+    var interval = null;
+    var sessionsCompleted = 0;
+
+    function updateDurations() {
+      durations.focus = (parseInt(document.getElementById('focus-input').value) || 25) * 60;
+      durations.short = (parseInt(document.getElementById('short-input').value) || 5) * 60;
+      durations.long  = (parseInt(document.getElementById('long-input').value) || 15) * 60;
+      if (!running) { timeLeft = durations[currentMode]; totalTime = durations[currentMode]; updateDisplay(); }
+    }
+
+    function setMode(mode) {
+      if (running) { clearInterval(interval); running = false; }
+      currentMode = mode;
+      timeLeft = durations[mode];
+      totalTime = durations[mode];
+      var btns = document.querySelectorAll('.mode-btn');
+      var keys = ['focus','short','long'];
+      for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('active', keys[i] === mode);
+      document.getElementById('mode-label').textContent = modes[mode].label;
+      document.getElementById('start-btn').textContent = 'Start';
+      updateDisplay();
+      setStatus(mode === 'focus' ? 'ready when you are' : 'enjoy your break');
+    }
+
+    function toggleTimer() {
+      if (running) {
+        clearInterval(interval); running = false;
+        document.getElementById('start-btn').textContent = 'Resume';
+        setStatus('paused — come back soon');
+      } else {
+        running = true;
+        document.getElementById('start-btn').textContent = 'Pause';
+        var msgs = modes[currentMode].msgs;
+        setStatus(msgs[Math.floor(Math.random() * msgs.length)]);
+        interval = setInterval(tick, 1000);
+      }
+    }
+
+    function tick() {
+      if (timeLeft <= 0) {
+        clearInterval(interval); running = false;
+        document.getElementById('start-btn').textContent = 'Start';
+        if (currentMode === 'focus') {
+          sessionsCompleted = Math.min(sessionsCompleted + 1, 4);
+          updatePips();
+          if (sessionsCompleted >= 4) {
+            setStatus('four sessions done!! take a long break');
+            setTimeout(function() { sessionsCompleted = 0; updatePips(); setMode('long'); }, 1200);
+          } else {
+            setStatus('session done! take a break');
+            setTimeout(function() { setMode('short'); }, 1200);
+          }
+        } else {
+          setStatus('break over — back to it!');
+          setTimeout(function() { setMode('focus'); }, 1200);
+        }
+        return;
+      }
+      timeLeft--;
+      updateDisplay();
+    }
+
+    function resetTimer() {
+      clearInterval(interval); running = false;
+      timeLeft = durations[currentMode]; totalTime = durations[currentMode];
+      document.getElementById('start-btn').textContent = 'Start';
+      setStatus('ready when you are');
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      var m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+      var s = String(timeLeft % 60).padStart(2, '0');
+      document.getElementById('timer-display').textContent = m + ':' + s;
+      var frac = totalTime > 0 ? timeLeft / totalTime : 1;
+      document.getElementById('progress-ring').style.strokeDashoffset = C * (1 - frac);
+    }
+
+    function updatePips() {
+      for (var i = 1; i <= 4; i++)
+        document.getElementById('pip-' + i).classList.toggle('done', i <= sessionsCompleted);
+    }
+
+    function setStatus(msg) { document.getElementById('status-msg').textContent = msg; }
+    updateDisplay();
+  </script>
+</body>
+</html>
